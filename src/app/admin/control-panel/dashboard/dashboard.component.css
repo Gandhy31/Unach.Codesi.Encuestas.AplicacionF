@@ -1,0 +1,46 @@
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
+
+body {
+    background-color: #f1f3f6;
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    padding-bottom: 25px;
+}
+
+.borde-inferior {
+    background-color: #ffffff;
+    border-bottom: 2px solid #000; 
+}
+
+.contenedor-blanco{
+    background-color: #ffffff;
+    border: 1px solid #e7e8eb;
+}
+
+.contenedor-blanco-sbordes{
+    background-color: #ffffff;
+}
+
+.contenedor-blanco-sbordet{
+    background-color: #ffffff;
+    border: 0px, 1px, 1px, 1px solid #e7e8eb;
+}
+
+.resultado {
+    width: 30px;
+    height: 30px;
+}
+
+.contenedor-blanco2{
+    background-color:#ffffff;
+}
+
+.borde-inferior-matriz {
+    background-color: #ffffff;
+    border-top: 1px solid #e7e8eb;
+    border-left: 1px solid #e7e8eb;
+    border-right: 1px solid #e7e8eb;
+    border-bottom: 2px solid #000; /* Cambia el grosor y el color del borde según tus preferencias */
+}
