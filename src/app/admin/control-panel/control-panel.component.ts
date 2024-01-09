@@ -14,6 +14,7 @@ import { Form, FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./control-panel.component.css']
 })
 export class ControlPanelComponent implements OnInit {
+  isLoading: boolean = true;
   form!: FormGroup;
   closeResult = '';
   nuevaEncuestaD = new EncuestaG( '', true, '', '', '' ,'', '');
@@ -83,6 +84,18 @@ export class ControlPanelComponent implements OnInit {
     return this.form.get('dependencia')?.invalid && this.form.get('dependencia')?.touched
   }
 
+  get FacultadInvalida(){
+    return this.form.get('facultad')?.invalid && this.form.get('facultad')?.touched
+  }
+
+  get CarreraInvalida(){
+    return this.form.get('carrera')?.invalid && this.form.get('carrera')?.touched
+  }
+
+  get UsuarioInvalido(){
+    return this.form.get('usuario')?.invalid && this.form.get('usuario')?.touched
+  }
+
   get fechaInicioInvalida(){
     return this.form.get('fechaInicio')?.invalid && this.form.get('fechaInicio')?.touched
   }
@@ -110,11 +123,24 @@ export class ControlPanelComponent implements OnInit {
       carrera:['', Validators.required],
       usuario:['', Validators.required],
       fechaInicio:['', Validators.required],
-      horaInicio:['', Validators.required],
-      fechaFin:['', Validators.required],
-      horaFin:['', Validators.required]
+      fechaFin:['', Validators.required]
     })
   }
+
+  /*CompararFechas(formGroup: FormGroup) {
+    return (formGroup: FormGroup) => {
+      const fechaInicio = formGroup.get(fechaInicioValor);
+      const fechaFin = formGroup.get(fechaFinValor);
+      console.log(fechaInicio);
+      console.log(fechaFin);
+
+      if(fechaFin?.value >= fechaInicio?.value){
+        fechaFin?.setErrors(null);
+      }else{
+        fechaFin?.setErrors({fechaFinMenor: true});
+      }
+    };
+  }*/
 
   FiltrarCarreras(valor: any){
     const carreras = this.vectorFacultades.find(carrera => carrera.facultad == valor);
@@ -137,10 +163,10 @@ export class ControlPanelComponent implements OnInit {
         this.form.value.dependencia,
         this.form.value.fechaInicio.year + '-' +
         this.ValidarFecha(this.form.value.fechaInicio.month) + '-' +
-        this.ValidarFecha(this.form.value.fechaInicio.day) + 'T' + this.form.value.horaInicio,
+        this.ValidarFecha(this.form.value.fechaInicio.day) + 'T00:00:00',
         this.form.value.fechaFin.year + '-' +
         this.ValidarFecha(this.form.value.fechaFin.month) + '-' +
-        this.ValidarFecha(this.form.value.fechaFin.day) + 'T' + this.form.value.horaFin ,
+        this.ValidarFecha(this.form.value.fechaFin.day) + 'T00:00:00' ,
         ''
       );
       await  this.AgregarEncuesta(enc);
@@ -163,11 +189,11 @@ export class ControlPanelComponent implements OnInit {
       body.dependencia = this.form.value.dependencia;
       body.fechaInicio = 
         this.form.value.fechaInicio.year + '-' + this.ValidarFecha(this.form.value.fechaInicio.month) + '-' +
-        this.ValidarFecha(this.form.value.fechaInicio.day) + 'T' + this.form.value.horaInicio;
+        this.ValidarFecha(this.form.value.fechaInicio.day) + 'T00:00:00';
       body.fechaFin = 
         this.form.value.fechaFin.year + '-' +
         this.ValidarFecha(this.form.value.fechaFin.month) + '-' +
-        this.ValidarFecha(this.form.value.fechaFin.day) + 'T' + this.form.value.horaFin;
+        this.ValidarFecha(this.form.value.fechaFin.day) + 'T00:00:00';
       await this.AgregarEncuesta(body);
       this.encuestas = await this.ObtenerEncuestas();
       modal.close();
@@ -186,32 +212,34 @@ export class ControlPanelComponent implements OnInit {
       body.dependencia = this.form.value.dependencia;
       body.fechaInicio = 
         this.form.value.fechaInicio.year + '-' + this.ValidarFecha(this.form.value.fechaInicio.month) + '-' +
-        this.ValidarFecha(this.form.value.fechaInicio.day) + 'T' + this.form.value.horaInicio;
+        this.ValidarFecha(this.form.value.fechaInicio.day) + 'T00:00:00';
       body.fechaFin = 
         this.form.value.fechaFin.year + '-' +
         this.ValidarFecha(this.form.value.fechaFin.month) + '-' +
-        this.ValidarFecha(this.form.value.fechaFin.day) + 'T' + this.form.value.horaFin;
+        this.ValidarFecha(this.form.value.fechaFin.day) + 'T00:00:00';
       await this.ActualizarEncuesta(body);
       this.encuestas = await this.ObtenerEncuestas();
       modal.close();
     }
   }
 
+  
+
   //funciones del web service
   async ObtenerEncuestas() {
-    debugger
     try {
       let response = await lastValueFrom(
         this._serviceEncuesta.ObtenerEncuestas()
       );
+      this.isLoading = false;
       return(response.entidad);
     } catch (e: HttpErrorResponse | any) {
       console.log(e);
+      this.isLoading = false;
     }
   }
 
   async AgregarEncuesta(body: any){
-    debugger
     try {
       let response = await lastValueFrom(
         this._serviceEncuesta.AgregarEncuesta(body)
@@ -222,7 +250,6 @@ export class ControlPanelComponent implements OnInit {
   }
 
   async EliminarEncuesta(id: number){
-    debugger
     try {
       let response = await lastValueFrom(
         this._serviceEncuesta.EliminarEncuesta(id)
@@ -234,7 +261,6 @@ export class ControlPanelComponent implements OnInit {
   }
 
   async ActualizarEncuesta(body: any) {
-    debugger
     try {
       let response = await lastValueFrom(
         this._serviceEncuesta.ActualizarEncuesta(body)

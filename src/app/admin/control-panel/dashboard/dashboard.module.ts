@@ -10,6 +10,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NgbScrollSpyModule } from '@ng-bootstrap/ng-bootstrap';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 
 @NgModule({
@@ -25,7 +27,8 @@ import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
     MatExpansionModule,
     MatTabsModule,
     NgbScrollSpyModule,
-    CanvasJSAngularChartsModule
+    CanvasJSAngularChartsModule,
+    MatProgressSpinnerModule
   ]
 })
 export class DashboardModule { }

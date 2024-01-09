@@ -16,10 +16,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit{
-  // options
-  panelOpenState = false;
-  graficoSeleccionado: string = '';
-  mostrarGrafico: boolean = true;
   encuesta = new Encuesta(0, '', true, '', '', '' ,'', '') ;
   reporteExcel = utils.book_new();
   vectorTipoGrafico = [
@@ -50,12 +46,10 @@ export class DashboardComponent implements OnInit{
   ];
 
   idEncuesta: any;
+  isLoading: boolean = true;
   resultados: any[] = [];
   preguntas: any[] = [];
-  preguntas2: any[] = [];
-  preguntasAux: any[] = [];
   vectorSecciones: any[] = [];
-  todos: any[] = [];
   constructor(private http: HttpClient, private _serviceEncuesta: EncuestaService, private route: ActivatedRoute, private formService:FormBuilder, private cdr: ChangeDetectorRef) { }
 
   async ngOnInit() {
@@ -64,139 +58,142 @@ export class DashboardComponent implements OnInit{
     const survey = new Model(this.encuesta.valoresEncuesta);
     const listaResultados = await this.ObtenerListaResultados(this.idEncuesta);
 
-    listaResultados.forEach((resultado: any)=>{
-      this.resultados.push(JSON.parse(resultado.valorResultado));
-    });
-
-    this.preguntas = Object.keys(this.resultados[0]);
-    var secciones = survey.pages;
-    
-
-    for(let seccion of secciones){
-      var seccionAgregar = {
-        nombre: seccion.title,
-        listaPreguntas: this.ObtenerPreguntas(seccion.getQuestions(true)),
-        excel: null
-      }
-      console.log(seccion.getQuestions(true))
-      this.vectorSecciones.push(seccionAgregar);
-    };
-
-    console.log(secciones);
-    console.log(this.resultados)
-    var arr1!: any [];
-    var listaExcel :any [][] = [];
-    var vectorMatriz: any [];
-    var vectorFinal: any [] = [];
-    var vectorHojas: any [] = [];
-
-    for (let i = 0; i < this.vectorSecciones.length; i++) {
-      for (let j = 0; j < this.vectorSecciones[i].listaPreguntas.length; j++) {
-        arr1 = [];
-        if(this.vectorSecciones[i].listaPreguntas[j].tipo == "matrix"){
-          this.vectorSecciones[i].listaPreguntas[j].filas.forEach((fila: string)=>{
-            vectorMatriz = [];
-            this.resultados.forEach((resultado: any) =>{
-              vectorMatriz.push(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre][fila]);
+    if(!(listaResultados.length == 0)){
+      listaResultados.forEach((resultado: any)=>{
+        this.resultados.push(JSON.parse(resultado.valorResultado));
+      });
+  
+      this.preguntas = Object.keys(this.resultados[0]);
+      var secciones = survey.pages;
+      
+  
+      for(let seccion of secciones){
+        var seccionAgregar = {
+          nombre: seccion.title,
+          listaPreguntas: this.ObtenerPreguntas(seccion.getQuestions(true)),
+          excel: null
+        }
+        console.log(seccion.getQuestions(true))
+        this.vectorSecciones.push(seccionAgregar);
+      };
+  
+      console.log(secciones);
+      console.log(this.resultados)
+      var arr1!: any [];
+      var listaExcel :any [][] = [];
+      var vectorMatriz: any [];
+      var vectorFinal: any [] = [];
+      var vectorHojas: any [] = [];
+  
+      for (let i = 0; i < this.vectorSecciones.length; i++) {
+        for (let j = 0; j < this.vectorSecciones[i].listaPreguntas.length; j++) {
+          arr1 = [];
+          if(this.vectorSecciones[i].listaPreguntas[j].tipo == "matrix"){
+            this.vectorSecciones[i].listaPreguntas[j].filas.forEach((fila: string)=>{
+              vectorMatriz = [];
+              this.resultados.forEach((resultado: any) =>{
+                vectorMatriz.push(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre][fila]);
+              })
+              var respuestasPorPregunta = _.countBy(vectorMatriz);
+              const data = Object.keys(respuestasPorPregunta).map(key => {
+                return {
+                  label: key.replace(/\s+/g, ''), // Elimina espacios en el nombre del item
+                  y: respuestasPorPregunta[key] 
+                };
+              });
+              vectorFinal.push({
+                fila: fila,
+                valores: vectorMatriz,
+                conteo: respuestasPorPregunta, 
+                opcionesGrafico: {
+                  exportEnabled: true,
+                  title:{
+                    text: fila,
+                    fontFamily: "Arial, sans-serif",
+                    fontWeight: "bold", 
+                    fontSize: 25
+                  },
+                  animationEnabled: true,
+                  axisY: {
+                    includeZero: true,
+                  },
+                  data: [{
+                    type: "doughnut",
+                    indexLabel: "{label}: {y} (#percent%)",
+                    dataPoints: data,
+                    showInLegend: true,
+                    legendText:"{label}"
+                  }]
+                },
+                chart: null
+              })
+              vectorHojas.push({valor: fila, ...respuestasPorPregunta});
             })
-            var respuestasPorPregunta = _.countBy(vectorMatriz);
+            this.vectorSecciones[i].listaPreguntas[j].respuestas = vectorFinal;
+            this.CrearHoja(vectorHojas, this.vectorSecciones[i].listaPreguntas[j].nombre);
+          }else{
+            this.resultados.forEach((resultado: any)=>{
+              
+              if(!(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre] == null)){
+                if(Array.isArray(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre])){
+                  arr1.push(...resultado[this.vectorSecciones[i].listaPreguntas[j].nombre].map((item: string) => (item == 'none' ? 'Ninguno' : item)));
+                }else{
+                  arr1.push(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre]);
+                }
+              }
+              
+            })
+            
+            var respuestasPorPregunta = _.countBy(arr1);
+            var hojaExcel = [respuestasPorPregunta];
+            
             const data = Object.keys(respuestasPorPregunta).map(key => {
               return {
                 label: key.replace(/\s+/g, ''), // Elimina espacios en el nombre del item
                 y: respuestasPorPregunta[key] 
               };
             });
-            vectorFinal.push({
-              fila: fila,
-              valores: vectorMatriz,
-              conteo: respuestasPorPregunta, 
-              opcionesGrafico: {
-                exportEnabled: true,
-                title:{
-                  text: fila,
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: "bold", 
-                  fontSize: 25
-                },
-                animationEnabled: true,
-                axisY: {
-                  includeZero: true,
-                },
-                data: [{
-                  type: "doughnut",
-                  indexLabel: "{label}: {y} (#percent%)",
-                  dataPoints: data,
-                  showInLegend: true,
-                  legendText:"{label}"
-                }]
+  
+            var configGrafico = {
+              exportEnabled: true,
+              title:{
+                text: this.vectorSecciones[i].listaPreguntas[j].nombre,
+                fontFamily: "Arial, sans-serif",
+                fontWeight: "bold", 
+                fontSize: 25
               },
-              chart: null
-            })
-            vectorHojas.push({valor: fila, ...respuestasPorPregunta});
-          })
-          this.vectorSecciones[i].listaPreguntas[j].respuestas = vectorFinal;
-          this.CrearHoja(vectorHojas, this.vectorSecciones[i].listaPreguntas[j].nombre);
-        }else{
-          this.resultados.forEach((resultado: any)=>{
-            
-            if(!(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre] == null)){
-              if(Array.isArray(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre])){
-                arr1.push(...resultado[this.vectorSecciones[i].listaPreguntas[j].nombre].map((item: string) => (item == 'none' ? 'Ninguno' : item)));
-              }else{
-                arr1.push(resultado[this.vectorSecciones[i].listaPreguntas[j].nombre]);
-              }
-            }
-            
-          })
-          
-          var respuestasPorPregunta = _.countBy(arr1);
-          var hojaExcel = [respuestasPorPregunta];
-          
-          const data = Object.keys(respuestasPorPregunta).map(key => {
-            return {
-              label: key.replace(/\s+/g, ''), // Elimina espacios en el nombre del item
-              y: respuestasPorPregunta[key] 
+              animationEnabled: true,
+              axisY: {
+                includeZero: true,
+              },
+              data: [{
+                type: "doughnut",
+                indexLabel: "{label}: {y} (#percent%)",
+                dataPoints: data,
+                showInLegend: true,
+                legendText:"{label}"
+              }]
             };
-          });
-
-          var configGrafico = {
-            exportEnabled: true,
-            title:{
-              text: this.vectorSecciones[i].listaPreguntas[j].nombre,
-              fontFamily: "Arial, sans-serif",
-              fontWeight: "bold", 
-              fontSize: 25
-            },
-            animationEnabled: true,
-            axisY: {
-              includeZero: true,
-            },
-            data: [{
-              type: "doughnut",
-              indexLabel: "{label}: {y} (#percent%)",
-              dataPoints: data,
-              showInLegend: true,
-              legendText:"{label}"
-            }]
-          };
-          this.vectorSecciones[i].listaPreguntas[j].opcionesGrafico = configGrafico;
-          this.vectorSecciones[i].listaPreguntas[j].respuestas = arr1;
-          
-          if(this.vectorSecciones[i].listaPreguntas[j].tipo == "text"){
-            var listaTexto = arr1.map(str => ({ texto: str }));
-            this.CrearHoja(listaTexto, this.vectorSecciones[i].listaPreguntas[j].nombre);
-          }else if(this.vectorSecciones[i].listaPreguntas[j].tipo == "comment"){
-            var listaComentario = arr1.map(str => ({ comentario: str }));
-            this.CrearHoja(listaComentario, this.vectorSecciones[i].listaPreguntas[j].nombre);
-          }else{
-            this.CrearHoja(hojaExcel, this.vectorSecciones[i].listaPreguntas[j].nombre);
+            this.vectorSecciones[i].listaPreguntas[j].opcionesGrafico = configGrafico;
+            this.vectorSecciones[i].listaPreguntas[j].respuestas = arr1;
+            
+            if(this.vectorSecciones[i].listaPreguntas[j].tipo == "text"){
+              var listaTexto = arr1.map(str => ({ texto: str }));
+              this.CrearHoja(listaTexto, this.vectorSecciones[i].listaPreguntas[j].nombre);
+            }else if(this.vectorSecciones[i].listaPreguntas[j].tipo == "comment"){
+              var listaComentario = arr1.map(str => ({ comentario: str }));
+              this.CrearHoja(listaComentario, this.vectorSecciones[i].listaPreguntas[j].nombre);
+            }else{
+              this.CrearHoja(hojaExcel, this.vectorSecciones[i].listaPreguntas[j].nombre);
+            }
           }
         }
+        this.vectorSecciones[i].excel = listaExcel
       }
-      this.vectorSecciones[i].excel = listaExcel
+  
+      console.log(this.vectorSecciones);
     }
-
-    console.log(this.vectorSecciones);
+    
   }
 
   async ObtenerEncuesta(id: number) {
@@ -216,8 +213,11 @@ export class DashboardComponent implements OnInit{
         let response = await lastValueFrom(
           this._serviceEncuesta.ObtenerListaResultados(id)
         );
+        this.isLoading = false;
         return(response.entidad);
       } catch (e: HttpErrorResponse | any) {
+        console.log(e);
+        this.isLoading = false;
       }
   }
 

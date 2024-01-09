@@ -40,65 +40,77 @@
     <div class="container my-4 py-3 contenedor-blanco">
       <h5 class="text-center">Encuestas</h5>
     </div>
-    <div class="container py-2 borde-inferior">
-      <small>Listado de Encuestas</small>
+    <div *ngIf="!this.isLoading">
+      <div class="container py-2 borde-inferior">
+        <small>Listado de Encuestas</small>
+      </div>
+      
+      <div class="container pt-2 pb-3 contenedor-blanco-sbordet" > 
+        <div class="container py-2 borde-inferior2">
+          <small>Detalle Encuestas</small>
+        </div>  
+        <div class="row">
+          <div class="col-md-12 table-responsive">
+            <table class="table table-bordered table-striped" style=" border-collapse:collapse;" >
+              <thead style="font-size:14px; border-collapse:collapse;">
+                <tr>
+                  <th scope="col" style="font-weight:bold;">ID</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Periodo Académico</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Fecha de Inicio</th>         
+                  <th scope="col">Fecha de Finalización</th> 
+                  <th scope="col">Dependencia</th>
+                  <th scope="col">Resultados</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody class="table-group-divider" style="font-size:13px; border-collapse:collapse;">
+                <tr *ngFor="let encuesta of encuestas">
+                  <td align="center"><div class="p-1">{{encuesta.id}}</div></td>
+                  <td><div class="p-1">{{encuesta.nombre}}</div></td>
+                  <td><div class="p-1">{{encuesta.periodo}}</div></td>
+                  <td *ngIf="encuesta.activo"><div class="p-1">Activa</div></td>
+                  <td *ngIf="!encuesta.activo"><div class="p-1">Inactiva</div></td>
+                  <td align="center"><div class="p-1">{{encuesta.fechaInicio | date:'yyyy-MM-dd  HH:mm'}}</div></td>        
+                  <td align="center"><div class="p-1">{{encuesta.fechaFin | date:'yyyy-MM-dd  HH:mm'}}</div></td>
+                  <td><div class="p-1">{{encuesta.dependencia}}</div></td>
+                  <td align="center"><button class="btn btn-lg p-0 bi bi-file-earmark-bar-graph" (click)="ResultadosEncuesta(encuesta)"></button></td>
+                  <td align="center">
+                    <div ngbDropdown class="dropdown" container="body">
+                      <button ngbDropdownToggle class="btn btn-sm"></button>
+                      <ul *ngIf="!encuesta.activo" ngbDropdownMenu class="dropdown-menu">
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EditarEncuesta(encuesta)">Abrir en diseñador de encuestas</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="DuplicarEncuestaModal(duplicar, encuesta)">Duplicar Encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EditarPropiedadesEncuestaModal(editar, encuesta)">Editar propiedades de encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="ResponderEncuesta(encuesta)">Responder Encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="ActivarEncuesta(encuesta)">Activar Encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EliminarEncuestaModal(eliminar, encuesta)" >Eliminar encuesta</button></li>
+                      </ul>
+                      <ul *ngIf="encuesta.activo" ngbDropdownMenu class="dropdown-menu">
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EditarEncuesta(encuesta)">Abrir en diseñador de encuestas</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="DuplicarEncuestaModal(duplicar, encuesta)">Duplicar Encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EditarPropiedadesEncuestaModal(editar, encuesta)">Editar propiedades de encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="ResponderEncuesta(encuesta)">Responder Encuesta</button></li>
+                        <li ngbDropdownItem [disabled]="true" aria-disabled="true"><button style="font-size:12px" class="dropdown-item disabled" (click)="ActivarEncuesta(encuesta)">Activar Encuesta</button></li>
+                        <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EliminarEncuestaModal(eliminar, encuesta)" >Eliminar encuesta</button></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-12 text-center">
+            <button type="button" class="btn btn-primary" style="font-size:12px" (click)="AgregarEncuestaModal(agregar)">Agregar</button>
+          </div>
+        </div> 
+      </div>
     </div>
     
-    <div class="container pt-2 pb-3 contenedor-blanco-sbordet"> 
-      <div class="container py-2 borde-inferior2">
-        <small>Detalle Encuestas</small>
-      </div>  
-      <div class="row">
-        <div class="col-md-12 table-responsive">
-          <table class="table table-bordered table-striped" style=" border-collapse:collapse;" >
-            <thead style="font-size:14px; border-collapse:collapse;">
-              <tr>
-                <th scope="col" style="font-weight:bold;">ID</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Periodo Académico</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Fecha de Inicio</th>         
-                <th scope="col">Fecha de Finalización</th> 
-                <th scope="col">Dependencia</th>
-                <th scope="col">Resultados</th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody class="table-group-divider" style="font-size:13px; border-collapse:collapse;">
-              <tr *ngFor="let encuesta of encuestas">
-                <td align="center"><div class="p-1">{{encuesta.id}}</div></td>
-                <td><div class="p-1">{{encuesta.nombre}}</div></td>
-                <td><div class="p-1">{{encuesta.periodo}}</div></td>
-                <td *ngIf="encuesta.activo"><div class="p-1">Activa</div></td>
-                <td *ngIf="!encuesta.activo"><div class="p-1">Inactiva</div></td>
-                <td align="center"><div class="p-1">{{encuesta.fechaInicio | date:'yyyy-MM-dd  HH:mm'}}</div></td>        
-                <td align="center"><div class="p-1">{{encuesta.fechaFin | date:'yyyy-MM-dd  HH:mm'}}</div></td>
-                <td><div class="p-1">{{encuesta.dependencia}}</div></td>
-                <td align="center"><button class="btn btn-lg p-0 bi bi-file-earmark-bar-graph" (click)="ResultadosEncuesta(encuesta)"></button></td>
-                <td align="center">
-                  <div ngbDropdown class="dropdown" container="body">
-                    <button ngbDropdownToggle class="btn btn-sm"></button>
-                    <ul ngbDropdownMenu class="dropdown-menu">
-                      <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EditarEncuesta(encuesta)">Abrir en diseñador de encuestas</button></li>
-                      <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="DuplicarEncuestaModal(duplicar, encuesta)">Duplicar Encuesta</button></li>
-                      <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EditarPropiedadesEncuestaModal(editar, encuesta)">Editar propiedades de encuesta</button></li>
-                      <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="ResponderEncuesta(encuesta)">Responder Encuesta</button></li>
-                      <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="ActivarEncuesta(encuesta)">Activar Encuesta</button></li>
-                      <li ngbDropdownItem><button style="font-size:12px" class="dropdown-item" (click)="EliminarEncuestaModal(eliminar, encuesta)" >Eliminar encuesta</button></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="col-md-12 text-center">
-          <button type="button" class="btn btn-primary" style="font-size:12px" (click)="AgregarEncuestaModal(agregar)">Agregar</button>
-        </div>
-      </div> 
-    </div>
-    <div>
-          
+    <div class="container col-md-12 contenedor-carga"  *ngIf="this.isLoading">
+      <mat-spinner diameter="220" strokeWidth="17" ></mat-spinner>
+      <h2 style="margin-top: 30px">Cargando Encuestas...</h2>
     </div>
     
 
@@ -121,47 +133,42 @@
               <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="dependencia">
                 <option *ngFor="let dependencia of dependencias" [value]="dependencia">{{ dependencia }}</option>
               </select>
+              <small *ngIf="DependenciaInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="DependenciaInvalida">
               <label for="nuevaEncuesta" class="form-label mt-2">Facultad:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="facultad" (ngModelChange)="FiltrarCarreras($event)">
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="FacultadInvalida" formControlName="facultad" (ngModelChange)="FiltrarCarreras($event)">
                 <option *ngFor="let facultad of vectorFacultades" [value]="facultad.facultad">{{ facultad.facultad }}</option>
               </select>
+              <small *ngIf="FacultadInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="FacultadInvalida">
               <label for="nuevaEncuesta" class="form-label mt-2">Carrera:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="carrera" >
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="CarreraInvalida" formControlName="carrera" >
                 <option *ngFor="let carrera of vectorCarreras" [value]="carrera">{{ carrera }}</option>
               </select>
+              <small *ngIf="CarreraInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="CarreraInvalida">
               <label for="nuevaEncuesta"  class="form-label mt-2">Usuarios:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="usuario">
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="UsuarioInvalido" formControlName="usuario">
                 <option *ngFor="let usuario of vectorUsuarios" [value]="usuario">{{ usuario }}</option>
               </select>
-              <small *ngIf="DependenciaInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="DependenciaInvalida">
-              <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Inicio:</label>
+              <small *ngIf="UsuarioInvalido"  class="text-danger">Campo Obligatorio</small><br *ngIf="UsuarioInvalido">          
               <div class="row col">
-                <div class="col-md-7">
+                <div class="col-md-6">
+                  <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Inicio:</label>
                   <div class="input-group">
                     <input class="form-control" style="font-size:14px" placeholder="aaaa-mm-dd" name="dp" ngbDatepicker #d="ngbDatepicker" 
                       [class.is-invalid]="fechaInicioInvalida" formControlName="fechaInicio"/>
                       <button class="btn btn-outline-secondary bi bi-calendar2-week" (click)="d.toggle()" type="button"></button>
                   </div>
+                  <small *ngIf="fechaInicioInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaInicioInvalida">
                 </div>
-                <div class="col-md-5">
-                  <input type="time" class="form-control" style="font-size:14px" value="00:00" formControlName="horaInicio">
-                </div>
-              </div>
-              <small *ngIf="fechaInicioInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaInicioInvalida">
-              <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Finalización:</label>
-              <div class="row col">
-                <div class="col-md-7">
+                <div class="col-md-6">
+                  <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Finalización:</label>
                   <div class="input-group">
                     <input  class="form-control" placeholder="aaaa-mm-dd" name="dp" ngbDatepicker #e="ngbDatepicker" style="font-size:14px"
                       [class.is-invalid]="fechaFinInvalida" formControlName="fechaFin"/>
                       <button class="btn btn-outline-secondary bi bi-calendar2-week" (click)="e.toggle()" type="button"></button>
                   </div>
-                </div>
-                <div class="col-md-5">
-                  <input type="time" class="form-control" style="font-size:14px" value="00:00" formControlName="horaFin">
+                  <small *ngIf="fechaFinInvalida"  class="text-danger">La fecha de fin debe ser mayor que la fecha de inicio.</small><br *ngIf="fechaFinInvalida">
                 </div>
               </div>
-              <small *ngIf="fechaFinInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaFinInvalida">
             </div> 
           </div>
           <div class="modal-footer">
@@ -190,47 +197,42 @@
               <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="dependencia">
                 <option *ngFor="let dependencia of dependencias" [value]="dependencia">{{ dependencia }}</option>
               </select>
+              <small *ngIf="DependenciaInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="DependenciaInvalida">
               <label for="nuevaEncuesta" class="form-label mt-2">Facultad:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="facultad" (ngModelChange)="FiltrarCarreras($event)">
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="FacultadInvalida" formControlName="facultad" (ngModelChange)="FiltrarCarreras($event)">
                 <option *ngFor="let facultad of vectorFacultades" [value]="facultad.facultad">{{ facultad.facultad }}</option>
               </select>
+              <small *ngIf="FacultadInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="FacultadInvalida">
               <label for="nuevaEncuesta" class="form-label mt-2">Carrera:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="carrera" >
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="CarreraInvalida" formControlName="carrera" >
                 <option *ngFor="let carrera of vectorCarreras" [value]="carrera">{{ carrera }}</option>
               </select>
+              <small *ngIf="CarreraInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="CarreraInvalida">
               <label for="nuevaEncuesta"  class="form-label mt-2">Usuarios:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="usuario">
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="UsuarioInvalido" formControlName="usuario">
                 <option *ngFor="let usuario of vectorUsuarios" [value]="usuario">{{ usuario }}</option>
               </select>
-              <small *ngIf="DependenciaInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="DependenciaInvalida">
-              <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Inicio:</label>
+              <small *ngIf="UsuarioInvalido"  class="text-danger">Campo Obligatorio</small><br *ngIf="UsuarioInvalido"> 
               <div class="row col">
-                <div class="col-md-7">
+                <div class="col-md-6">
+                  <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Inicio:</label>
                   <div class="input-group">
                     <input class="form-control" style="font-size:14px" placeholder="aaaa-mm-dd" name="dp" ngbDatepicker #d="ngbDatepicker" 
                       [class.is-invalid]="fechaInicioInvalida" formControlName="fechaInicio"/>
                       <button class="btn btn-outline-secondary bi bi-calendar2-week" (click)="d.toggle()" type="button"></button>
                   </div>
+                  <small *ngIf="fechaInicioInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaInicioInvalida">
                 </div>
-                <div class="col-md-5">
-                  <input type="time" class="form-control" style="font-size:14px" value="00:00" formControlName="horaInicio">
-                </div>
-              </div>
-              <small *ngIf="fechaInicioInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaInicioInvalida">
-              <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Finalización:</label>
-              <div class="row col">
-                <div class="col-md-7">
+                <div class="col-md-6">
+                  <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Finalización:</label>
                   <div class="input-group">
                     <input  class="form-control" placeholder="aaaa-mm-dd" name="dp" ngbDatepicker #e="ngbDatepicker" style="font-size:14px"
                       [class.is-invalid]="fechaFinInvalida" formControlName="fechaFin"/>
                       <button class="btn btn-outline-secondary bi bi-calendar2-week" (click)="e.toggle()" type="button"></button>
                   </div>
-                </div>
-                <div class="col-md-5">
-                  <input type="time" class="form-control" style="font-size:14px" value="00:00" formControlName="horaFin">
+                  <small *ngIf="fechaFinInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaFinInvalida">
                 </div>
               </div>
-              <small *ngIf="fechaFinInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaFinInvalida">
             </div> 
           </div>
           <div class="modal-footer">
@@ -244,7 +246,7 @@
       <ng-template #duplicar let-modal>
         <form [formGroup]="form"  (ngSubmit)="GuardarFormularioDuplicar(this.modal, this.nuevaEncuestaD)" style="font-size:14px">
           <div class="modal-header">
-            <h6 class="modal-title">Editar Propiedades de Encuesta</h6>
+            <h6 class="modal-title">Duplicar Encuesta</h6>
             <button type="button" class="btn-close" (click)="modal.dismiss(); this.form.reset()"></button>
           </div>
           <div class="modal-body" >
@@ -259,47 +261,42 @@
               <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="dependencia">
                 <option *ngFor="let dependencia of dependencias" [value]="dependencia">{{ dependencia }}</option>
               </select>
+              <small *ngIf="DependenciaInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="DependenciaInvalida">
               <label for="nuevaEncuesta" class="form-label mt-2">Facultad:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="facultad" (ngModelChange)="FiltrarCarreras($event)">
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="FacultadInvalida" formControlName="facultad" (ngModelChange)="FiltrarCarreras($event)">
                 <option *ngFor="let facultad of vectorFacultades" [value]="facultad.facultad">{{ facultad.facultad }}</option>
               </select>
+              <small *ngIf="FacultadInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="FacultadInvalida">
               <label for="nuevaEncuesta" class="form-label mt-2">Carrera:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="carrera" >
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="CarreraInvalida" formControlName="carrera" >
                 <option *ngFor="let carrera of vectorCarreras" [value]="carrera">{{ carrera }}</option>
               </select>
+              <small *ngIf="CarreraInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="CarreraInvalida">
               <label for="nuevaEncuesta"  class="form-label mt-2">Usuarios:</label>
-              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="DependenciaInvalida" formControlName="usuario">
+              <select id="opciones" style="font-size:14px" class="form-select" [class.is-invalid]="UsuarioInvalido" formControlName="usuario">
                 <option *ngFor="let usuario of vectorUsuarios" [value]="usuario">{{ usuario }}</option>
               </select>
-              <small *ngIf="DependenciaInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="DependenciaInvalida">
-              <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Inicio:</label>
+              <small *ngIf="UsuarioInvalido"  class="text-danger">Campo Obligatorio</small><br *ngIf="UsuarioInvalido"> 
               <div class="row col">
-                <div class="col-md-7">
+                <div class="col-md-6">
+                  <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Inicio:</label>
                   <div class="input-group">
                     <input class="form-control" style="font-size:14px" placeholder="aaaa-mm-dd" name="dp" ngbDatepicker #d="ngbDatepicker" 
                       [class.is-invalid]="fechaInicioInvalida" formControlName="fechaInicio"/>
                       <button class="btn btn-outline-secondary bi bi-calendar2-week" (click)="d.toggle()" type="button"></button>
                   </div>
+                  <small *ngIf="fechaInicioInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaInicioInvalida">
                 </div>
-                <div class="col-md-5">
-                  <input type="time" class="form-control" style="font-size:14px" value="00:00" formControlName="horaInicio">
-                </div>
-              </div>
-              <small *ngIf="fechaInicioInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaInicioInvalida">
-              <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Finalización:</label>
-              <div class="row col">
-                <div class="col-md-7">
+                <div class="col-md-6">
+                  <label for="nuevaEncuesta"  class="form-label mt-2">Fecha de Finalización:</label>
                   <div class="input-group">
                     <input  class="form-control" placeholder="aaaa-mm-dd" name="dp" ngbDatepicker #e="ngbDatepicker" style="font-size:14px"
                       [class.is-invalid]="fechaFinInvalida" formControlName="fechaFin"/>
                       <button class="btn btn-outline-secondary bi bi-calendar2-week" (click)="e.toggle()" type="button"></button>
                   </div>
-                </div>
-                <div class="col-md-5">
-                  <input type="time" class="form-control" style="font-size:14px" value="00:00" formControlName="horaFin">
+                  <small *ngIf="fechaFinInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaFinInvalida">
                 </div>
               </div>
-              <small *ngIf="fechaFinInvalida"  class="text-danger">Campo Obligatorio</small><br *ngIf="fechaFinInvalida">
             </div> 
           </div>
           <div class="modal-footer">

@@ -37,80 +37,76 @@
         </div>
       </div>
     </nav>
-    <div class="container-xxl my-4 py-3 mh-20 contenedor-blanco">
+    <div class="container my-4 py-3 mh-20 contenedor-blanco" *ngIf="!this.isLoading">
       <h5 class="text-center">Reportes de {{this.encuesta.nombre}}</h5>
     </div>
-    <div class="container py-2 borde-inferior">
-      <small>Secciones</small>
-    </div>
-    <div class="container py-2 contenedor-blanco-sbordes ">
-      
-    </div>
-    <div class="container py-2 contenedor-blanco-sbordet"> 
-      <div class="row">
-        <div class="container-fluid">
-          <div class="row">
-            <mat-accordion multi>
-              <mat-expansion-panel 
-                *ngFor="let seccion of vectorSecciones; let index = index" 
-                (opened)="panelOpenState = true"
-                (closed)="panelOpenState = false"
-                [expanded]="Expandir(index)">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    {{seccion.nombre }}
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div *ngFor="let pregunta of seccion.listaPreguntas; let i = index" >
-                  
-                  <div class="row contenedor-blanco mb-3 shadow p-3" *ngIf="GraficoGeneral(pregunta.tipo)"  id="imprimir">
-                    <div class="container py-2 borde-inferior">
-                      <h6>{{pregunta.nombre}}</h6>
+    <div *ngIf="!this.isLoading">
+      <div class="container py-2 borde-inferior" *ngIf="!(resultados.length == 0)">
+        <small>Secciones</small>
+      </div>
+      <div class="container pt-4 py-2 contenedor-blanco-sbordet" *ngIf="!(resultados.length == 0)"> 
+        <div class="row">
+          <div class="container-fluid">
+            <div class="row">
+              <mat-accordion multi >
+                <mat-expansion-panel 
+                  *ngFor="let seccion of vectorSecciones; let index = index" 
+                  [expanded]="Expandir(index)">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      {{seccion.nombre }}
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div *ngFor="let pregunta of seccion.listaPreguntas; let i = index" >        
+                    <div class="row contenedor-blanco mb-3 shadow p-3" *ngIf="GraficoGeneral(pregunta.tipo)"  id="imprimir">
+                      <div class="container py-2 borde-inferior">
+                        <h6>{{pregunta.nombre}}</h6>
+                      </div>
+                      <div class="col-lg-4 col-12 mt-2 mb-4">
+                        <label for="nuevaEncuesta"  class="form-label mt-2">Seleccione el tipo de gráfico:</label>
+                        <select id="opciones" style="font-size:14px" class="form-select" (change)="CambiarGrafico(index, i, $event)">
+                          <option *ngFor="let tipoGrafico of vectorTipoGrafico" [value]="tipoGrafico.valor" >{{tipoGrafico.nombre}}</option>
+                        </select>
+                      </div>
+                      <div class="col-lg-8 col-12 mt-4 mb-4">
+                        <canvasjs-chart [options]="pregunta.opcionesGrafico" (chartInstance)="getChartInstance($event, index, i)" [styles]="{width: '100%', height:'360px'}"></canvasjs-chart>
+                      </div>
                     </div>
-                    <div class="col-lg-4 col-12 mt-2 mb-4">
-                      <label for="nuevaEncuesta"  class="form-label mt-2">Seleccione el tipo de gráfico:</label>
-                      <select id="opciones" style="font-size:14px" class="form-select" (change)="CambiarGrafico(index, i, $event)">
-                        <option *ngFor="let tipoGrafico of vectorTipoGrafico" [value]="tipoGrafico.valor" >{{tipoGrafico.nombre}}</option>
-                      </select>
+                    <div class="row contenedor-blanco mb-3 shadow p-3" *ngIf="GraficoTexto(pregunta.tipo)"  id="imprimir">
+                      <div class="container py-2 borde-inferior">
+                        <h6>{{pregunta.nombre}}</h6>
+                      </div>
+                      <div class="mt-2" ngbScrollSpy #spy="ngbScrollSpy" style=" max-height: 400px;">
+                        <table ngbScrollSpyFragment="one"  class="table table-bordered table-striped" style="font-size:13px; border-collapse:collapse;" >
+                          <tbody>
+                            <tr *ngFor="let respuesta of pregunta.respuestas; let k = index">
+                              <td >{{respuesta}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                    <div class="col-lg-8 col-12 mt-4 mb-4">
-                      <canvasjs-chart [options]="pregunta.opcionesGrafico" (chartInstance)="getChartInstance($event, index, i)" [styles]="{width: '100%', height:'360px'}"></canvasjs-chart>
-                    </div>
-                  </div>
-                  <div class="row contenedor-blanco mb-3 shadow p-3" *ngIf="GraficoTexto(pregunta.tipo)"  id="imprimir">
-                    <div class="container py-2 borde-inferior">
-                      <h6>{{pregunta.nombre}}</h6>
-                    </div>
-                    <div class="mt-2" ngbScrollSpy #spy="ngbScrollSpy" style=" max-height: 400px;">
-                      <table ngbScrollSpyFragment="one"  class="table table-bordered table-striped" style="font-size:13px; border-collapse:collapse;" >
-                        <tbody>
-                          <tr *ngFor="let respuesta of pregunta.respuestas; let k = index">
-                            <td >{{respuesta}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="row contenedor-blanco mb-3 shadow p-2" *ngIf="GraficoMatriz(pregunta.tipo)"  id="imprimir">
-                    <div class="col-12 container py-2 borde-inferior">
-                      <h6>{{pregunta.nombre}}</h6>
-                    </div>
-                    <div class="col-12 contenedor-blanco2 p-1">
-                      <div class="row">
-                        <div class="col-md-6 col-12" *ngFor="let respuesta of pregunta.respuestas; let k = index">
-                          <div>
-                            <div class="container pt-2 pb-1 mt-2 borde-inferior-matriz">
-                              {{respuesta.fila}}
-                            </div>
-                            <div class="contenedor-blanco shadow p-2">
-                              <div class="col-12 mt-2 mb-4">
-                                <label style="margin-left: 4px;" for="nuevaEncuesta"  class="form-label mt-2">Gráfico:</label>
-                                <select id="opciones" style="font-size:14px" class="form-select" (change)="CambiarGrafico2(index, i, k, $event)">
-                                  <option *ngFor="let tipoGrafico of vectorTipoGrafico" [value]="tipoGrafico.valor" >{{tipoGrafico.nombre}}</option>
-                                </select>
+                    <div class="row contenedor-blanco mb-3 shadow p-2" *ngIf="GraficoMatriz(pregunta.tipo)"  id="imprimir">
+                      <div class="col-12 container py-2 borde-inferior">
+                        <h6>{{pregunta.nombre}}</h6>
+                      </div>
+                      <div class="col-12 contenedor-blanco2 p-1">
+                        <div class="row">
+                          <div class="col-md-6 col-12" *ngFor="let respuesta of pregunta.respuestas; let k = index">
+                            <div>
+                              <div class="container pt-2 pb-1 mt-2 borde-inferior-matriz">
+                                {{respuesta.fila}}
                               </div>
-                              <div class="col-lg-12 col-12 mt-4 mb-4">
-                                <canvasjs-chart [options]="respuesta.opcionesGrafico" (chartInstance)="getChartInstance2($event, index, i, k)" [styles]="{width: '100%', height:'350px'}"></canvasjs-chart>
+                              <div class="contenedor-blanco shadow p-2">
+                                <div class="col-12 mt-2 mb-4">
+                                  <label style="margin-left: 4px;" for="nuevaEncuesta"  class="form-label mt-2">Gráfico:</label>
+                                  <select id="opciones" style="font-size:14px" class="form-select" (change)="CambiarGrafico2(index, i, k, $event)">
+                                    <option *ngFor="let tipoGrafico of vectorTipoGrafico" [value]="tipoGrafico.valor" >{{tipoGrafico.nombre}}</option>
+                                  </select>
+                                </div>
+                                <div class="col-lg-12 col-12 mt-4 mb-4">
+                                  <canvasjs-chart [options]="respuesta.opcionesGrafico" (chartInstance)="getChartInstance2($event, index, i, k)" [styles]="{width: '100%', height:'350px'}"></canvasjs-chart>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -118,15 +114,22 @@
                       </div>
                     </div>
                   </div>
-                </div>
-              </mat-expansion-panel>
-            </mat-accordion>
-            <div class="col-md-12 mt-3 text-center">
-              <button type="button" class="btn btn-primary" style="font-size:14px" (click)="ExportarExcel()">Descargar Informe en Excel</button>
+                </mat-expansion-panel>
+              </mat-accordion>
+              <div class="col-md-12 mt-3 text-center" >
+                <button type="button" class="btn btn-primary" style="font-size:14px" (click)="ExportarExcel()">Descargar Informe en Excel</button>
+              </div>
             </div>
           </div>
-        </div>
-      </div> 
+        </div> 
+      </div>
+      <div class=" container col-md-12 py-5 text-center contenedor-blanco"  *ngIf="(resultados.length == 0)">
+        <h2>No existen resultados disponibles</h2>
+      </div>
+    </div>
+    <div class="container col-md-12 contenedor-carga"  *ngIf="this.isLoading">
+      <mat-spinner diameter="220" strokeWidth="17" ></mat-spinner>
+      <h2 style="margin-top: 30px">Cargando Resultados...</h2>
     </div>
   </body>
 </html>

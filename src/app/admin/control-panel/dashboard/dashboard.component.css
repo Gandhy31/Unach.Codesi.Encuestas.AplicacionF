@@ -44,3 +44,15 @@ body {
     border-right: 1px solid #e7e8eb;
     border-bottom: 2px solid #000; /* Cambia el grosor y el color del borde según tus preferencias */
 }
+
+.contenedor-carga{
+    background-color: #ffffff;
+    border: 1px solid #e7e8eb;
+    padding: 85px 0px 85px 0px ; 
+    margin-top: 80px; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}

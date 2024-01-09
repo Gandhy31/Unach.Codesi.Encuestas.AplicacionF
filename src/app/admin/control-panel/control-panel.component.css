@@ -1,4 +1,5 @@
 @import "~bootstrap-icons/font/bootstrap-icons.css";
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
 
 body {
     background-color: #f1f3f6;
@@ -40,4 +41,16 @@ body {
 .resultado {
     width: 30px;
     height: 30px;
+}
+
+.contenedor-carga{
+    background-color: #ffffff;
+    border: 1px solid #e7e8eb;
+    padding: 85px 0px 85px 0px ; 
+    margin-top: 20px; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
 }
